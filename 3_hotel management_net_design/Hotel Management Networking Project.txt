@@ -1,0 +1,471 @@
+Hotel Management Networking Project
+
+
+I Set up and label everything based on the instruction.
+
+
+II. CONFIGURATION IN ROUTER | PART 1
+1. Security config of the 3 routers
+A. 1st floor
+ena
+conf t
+host R1
+line con 0
+pass 1st-floor
+login
+line vty 0 15
+pass 1st-floor-12345
+login
+exit
+ena sec 1st-floor-networks
+banner motd # Authorized Access Only!!! #
+ser pass
+do wr
+
+B. 2nd floor
+ena
+conf t
+host R2
+line con 0
+pass 2nd-floor
+login
+line vty 0 15
+pass 2nd-floor-12345
+login
+exit
+ena sec 2nd-floor-networks
+banner motd # Authorized Access Only!!! #
+ser pass
+do wr
+
+C. Third floor
+ena
+conf t
+host R3
+line con 0
+pass 3rd-floor
+login
+line vty 0 15
+pass 3rd-floor-12345
+login
+exit
+ena sec 3rd-floor-networks
+banner motd # Authorized Access Only!!! #
+ser pass
+do wr
+
+2. Activating the serials and gig of the 3 routers
+##repeat this to other router as long as tama ang port number
+R1(config)#int s0/3/0
+R1(config-if)#no sh
+
+%LINK-5-CHANGED: Interface Serial0/3/0, changed state to down
+R1(config-if)#int s0/3/0
+R1(config-if)#no sh
+R1(config-if)#int s0/3/1
+R1(config-if)#no sh
+
+%LINK-5-CHANGED: Interface Serial0/3/1, changed state to down
+R1(config-if)#int g0/0
+R1(config-if)#no sh
+
+%LINK-5-CHANGED: GigabitEthernet0/0/0, changed state to down
+
+3. Clock rate
+## do this if my clock yong sa ports/cable ng kada router.
+R1(config)#int se0/0/1
+R1(config-if)#clock rate ?
+R1(config-if)#clock rate 64000
+R1(config-if)#do wr
+##ginawa ko ito sa isa sa mga ports ng router kasi yon yong my DCE and clock rate
+
+4. Configure the gateway of the 3 routers side-by-side na cable para magcomm
+A. R1
+int se0/0/0
+ip add 10.10.10.5 255.255.255.252
+
+int se0/0/1
+ip add 10.10.10.9 255.255.255.252
+do wr
+
+B. R2
+int se0/3/1
+ip add 10.10.10.10 255.255.255.252
+
+int se0/3/0
+ip add 10.10.10.1 255.255.255.252
+do wr
+
+C. R3
+int se0/3/1
+ip add 10.10.10.6 255.255.255.252
+
+int se0/3/0
+ip add 10.10.10.2 255.255.255.252
+do wr
+
+
+III. CONFIGURATION IN SWITCH 
+A. 1st Floor 
+Security config of the 3 routers
+ena
+conf t
+host S0
+line con 0
+pass first-floor-switch
+login
+line vty 0 15
+pass first-floor-switch-12345
+login
+exit
+ena sec first-floor-switch-networks
+banner motd # Authorized Access Only!!! #
+ser pass
+do wr
+
+2. Create a vlan for the 3 departments in 1st floor
+a. VLAN 80
+int range fa0/6-8
+switchport mode access
+switchport access vlan 80
+
+b. VLAN 70
+int range fa0/4-5
+switchport mode access
+switchport access vlan 70
+
+c. VLAN 60
+int range fa0/2-3
+switchport mode access
+switchport access vlan 60
+
+3. Do the switchport mode trunk
+int fa0/1
+switchport mode trunk
+## This tells the switch to allow traffic from all VLANs to be sent and received on this port, with each frame tagged to identify its source VLAN.
+do wr
+
+B. 2nd Floor
+Security config of the 3 routers
+ena
+conf t
+host S2
+line con 0
+pass second-floor-switch
+login
+line vty 0 15
+pass second-floor-switch-12345
+login
+exit
+ena sec second-floor-switch-networks
+banner motd # Authorized Access Only!!! #
+ser pass
+do wr
+
+2. Create a vlan for the 3 departments in 1st floor
+a. VLAN 50
+int range fa0/2-3
+switchport mode access
+switchport access vlan 50
+
+b. VLAN 40
+int range fa0/4-5
+switchport mode access
+switchport access vlan 40
+
+c. VLAN 30
+int range fa0/6-8
+switchport mode access
+switchport access vlan 30
+
+3. Do the switchport mode trunk
+int fa0/1
+switchport mode trunk
+## This tells the switch to allow traffic from all VLANs to be sent and received on this port, with each frame tagged to identify its source VLAN.
+do wr
+
+C. 3rd Floor
+Security config of the 3 routers
+ena
+conf t
+host S3
+line con 0
+pass third-floor-switch
+login
+line vty 0 15
+pass third-floor-switch-12345
+login
+exit
+ena sec third-floor-switch-networks
+banner motd # Authorized Access Only!!! #
+ser pass
+do wr
+
+2. Create a vlan for the 3 departments in 1st floor
+a. VLAN 20
+int range fa0/2-3
+switchport mode access
+switchport access vlan 20
+
+b. VLAN 10
+int range fa0/4-6
+switchport mode access
+switchport access vlan 10
+
+3. Do the switchport mode trunk
+int fa0/1
+switchport mode trunk 
+## This tells the switch to allow traffic from all VLANs to be sent and received on this port, with each frame tagged to identify its source VLAN.	
+do wr
+ 
+
+IV. CONFIGURATION IN ROUTER | CONFIG INTERVELAN ROUTER
+##per department sa loob ng 1st floor yan kaya may space para di ka malito
+A. 1st floor 
+int g0/0.60
+encapsulation dot1Q 60
+ip address 192.168.6.1 255.255.255.0
+exit
+
+int g0/0.70
+encapsulation dot1Q 70
+ip address 192.168.7.1 255.255.255.0
+exit
+
+int g0/0.80
+encapsulation dot1Q 80
+ip address 192.168.8.1 255.255.255.0
+exit
+
+do wr
+
+B. 2nd Floor
+int g0/0.30
+encapsulation dot1Q 30
+ip address 192.168.3.1 255.255.255.0
+exit
+
+int g0/0.40
+encapsulation dot1Q 40
+ip address 192.168.4.1 255.255.255.0
+exit
+
+int g0/0.50
+encapsulation dot1Q 50
+ip address 192.168.5.1 255.255.255.0
+exit
+
+do wr
+
+C. 3rd Floor
+int g0/0.10
+encapsulation dot1Q 10
+ip address 192.168.1.1 255.255.255.0
+exit
+
+int g0/0.20
+encapsulation dot1Q 20
+ip address 192.168.2.1 255.255.255.0
+exit
+
+do wr
+
+
+V. CONFIGURATION IN ROUTER| CONFIG THE DHCP SERVER 
+##per department sa loob ng 1st floor yan kaya may space para di ka malito
+A. 1st floor
+service dhcp
+ip dhcp pool logistics
+net 192.168.6.0 255.255.255.0
+default-router 192.168.6.1
+dns-server 192.168.6.1
+domain-name logistics.com
+exit
+
+ip dhcp pool store
+net 192.168.7.0 255.255.255.0
+default-router 192.168.7.1
+dns-server 192.168.7.1
+domain-name store.com
+exit
+
+ip dhcp pool reception
+net 192.168.8.0 255.255.255.0
+default-router 192.168.8.1
+dns-server 192.168.8.1
+domain-name reception.com
+exit
+
+do wr
+
+A. 2nd floor
+service dhcp
+ip dhcp pool finance
+net 192.168.5.0 255.255.255.0
+default-router 192.168.5.1
+dns-server 192.168.5.1
+domain-name finance.com
+exit
+
+ip dhcp pool hr
+net 192.168.4.0 255.255.255.0
+default-router 192.168.4.1
+dns-server 192.168.4.1
+domain-name hr.com
+exit
+
+ip dhcp pool sales
+net 192.168.3.0 255.255.255.0
+default-router 192.168.3.1
+dns-server 192.168.3.1
+domain-name sales.com
+exit
+
+do wr
+
+C. 3rd floor
+service dhcp
+ip dhcp pool IT
+net 192.168.1.0 255.255.255.0
+default-router 192.168.1.1
+dns-server 192.168.1.1
+domain-name it.com
+exit
+
+ip dhcp pool admin
+net 192.168.2.0 255.255.255.0
+default-router 192.168.2.1
+dns-server 192.168.2.1
+domain-name admin.com
+exit
+
+do wr
+
+VI. Add ip add to the end devices by going to the ip configuration and click the DHCP.
+
+
+VII. Ping the connectivity within each LAN
+
+VIII. Configure for OSPF
+A. 1st floor
+router ospf 10
+net 10.10.10.4 255.255.255.252 area 0
+net 10.10.10.8 255.255.255.252 area 0
+net 192.168.7.0 255.255.255.0 area 0
+net 192.168.8.0 255.255.255.0 area 0
+net 192.168.6.0 255.255.255.0 area 0
+
+do wr
+
+B. 2nd floor
+router ospf 10
+net 10.10.10.0 255.255.255.252 area 0
+net 10.10.10.8 255.255.255.252 area 0
+net 192.168.5.0 255.255.255.0 area 0
+net 192.168.4.0 255.255.255.0 area 0
+net 192.168.3.0 255.255.255.0 area 0
+
+do wr
+
+C. 3rd floor
+router ospf 10
+net 10.10.10.4 255.255.255.252 area 0
+net 10.10.10.0 255.255.255.252 area 0
+net 192.168.1.0 255.255.255.0 area 0
+net 192.168.2.0 255.255.255.0 area 0
+
+do wr
+
+
+IX. CONFIGURING ACCESS POINTS
+Go to config to port 1. Change the SSID and put a password by clicking first the WPA2-PSK. Must be AES (below the password).
+
+
+X. CONNECTING THE WIRELESS DEVICES
+Try the wireless connection. Connect the wireless devices by adding smartphone, laptop etc.
+a. Smartphone	
+Config Category
+Click wireless0. Input the wifi SSID and password (WPA2-PSK)
+Desktop Cate > IP Config
+click the dhcp for its ip
+
+b. Laptop
+Physical Category
+Off the laptop
+Remove the current module. Add the module WPC300N. Then, turn on.
+Config Category
+Click wireless0. Input the wifi SSID and password (WPA2-PSK)
+OR
+Desktop Category > IP Wireless
+Refresh. Connect to the designated wifi. Input the password. Connect.
+Desktop Cat > IP Config
+click the dhcp for its ip
+
+c. Tablet
+Config Category
+Click wireless0. Input the wifi SSID and password (WPA2-PSK)
+Desktop Cate > IP Config
+click the dhcp for its ip
+
+
+XI. CONFIGURE SSH
+ip domain-name cisco.com
+crypto key generate rsa
+1024 ##(Press Enter and then choose a key size like 1024 or 2048)
+username <your-username> secret <your-password>
+line vty 0 15
+no password
+no login
+transport input ssh
+login local
+end
+do wr
+
+A. 1st floor
+ip domain-name first_dept.com
+username chin secret chiin
+crypto key generate rsa
+1024
+line vty 0 15
+login local
+transport input ssh
+do wr
+exit
+
+B. 2nd floor
+ip domain-name second_dept.com
+username chin secret chiin
+crypto key generate rsa
+1024
+line vty 0 15
+login local
+transport input ssh
+do wr
+exit
+
+C. Third floor
+ip domain-name third_dept.com
+username chin secret chiin
+crypto key generate rsa
+1024
+line vty 0 15
+login local
+transport input ssh
+do wr
+exit
+
+XII. TESTING--PAPASOK SA ROUTER
+ssh -l chin 10.10.10.1 ##gateway address
+
+XIII.
+int fa0/3
+switchport port-security maximum 1
+switchport port-security mac-address sticky
+switchport port-security violation ?
+switchport port-security violation shutdown
+do wr
+
+do sh start
+
+do sh port-security
+
