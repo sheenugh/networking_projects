@@ -4,5 +4,5 @@ In this repository, all networking projects are credited by Gurutech Trainer. Th
 # **Gurutech Trainer**
 He is a youtuber that provides tutorial about networking projects.
 #
-# **Youtubue Channel**
+# **Youtube Channel**
 https://www.youtube.com/@gtechtrainer
