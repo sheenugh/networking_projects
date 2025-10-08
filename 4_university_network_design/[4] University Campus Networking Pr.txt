@@ -1,0 +1,421 @@
+[4] University/Campus Networking Project
+
+
+--------- SET-UP ----------
+STEP 1:  Set-up by cabling, labelling, and grouping (based on the prob)
+
+STEP 2: Set-up on your own the ip add, vlan of per dept, and network between routers
+
+
+--------- CONFIGURATION: ROUTERS ----------
+STEP 3: Turn on the interfaces of the routers.
+A. Main campus router
+en
+config t
+int g0/0
+no sh
+do wr
+
+int se0/0/0
+no sh
+do wr
+
+int se0/1/0
+no sh
+do wr
+exit
+
+B. Cloud router
+en
+config t
+int g0/0
+no sh
+do wr
+
+int se0/1/0
+no sh
+do wr
+
+B. Branch campus router
+en
+config t
+int g0/0
+no sh
+do wr
+
+int se0/3/0
+no sh
+do wr
+
+
+--------- CONFIGURATION: MULTILAYER SWITCH ----------
+STEP 4: Add power supply to the MS
+Task 1: Go to physical tab and drag and drop the AC Power Supply. Wait for it to turn green the connections.
+
+
+--------- CONFIGURATION: ROUTER'S CLOCK RATE ----------
+STEP 5: To enable traffic to flow through those interfaces all the cables
+en
+config t
+int se0/1/0
+clock rate 64000
+do wr
+
+int se0/0/0
+clock rate 64000
+do wr
+exit
+
+--------- CONFIGURATION: CREATION OF VLAN IN LAYER 2 SWITCH'S  ----------
+STEP 6: Do this in various switches both main and batch campus
+##range - when you want to configure the same parameter on multiple interfaces within the LAN
+A. Admin
+en
+config t
+int range fa0/1-24
+switchport mode access
+switchport access vlan 10
+do wr
+
+B. HR
+en
+config t
+int range fa0/1-24
+switchport mode access
+switchport access vlan 20
+do wr
+
+C. Finance
+en
+config t
+int range fa0/1-24
+switchport mode access
+switchport access vlan 30
+do wr
+
+D. Business
+en
+config t
+int range fa0/1-24
+switchport mode access
+switchport access vlan 40
+do wr
+
+## do the other vlan and in the branch campus.....
+
+
+--------- CONFIGURATION: CREATION OF VLAN IN LAYER 3 (ML SWITCH) SWITCH'S  ----------
+STEP 7: Do this in various multilayer switch
+## Inside the main campus multilayer switch. Note: every int is designated in different depts.
+A. Main Campus
+en
+config t
+int g1/0/2
+switchport mode access
+switchport access vlan 10
+do wr
+
+int g1/0/3
+switchport mode access
+switchport access vlan 20
+do wr
+
+int g1/0/4
+switchport mode access
+switchport access vlan 30
+do wr
+
+int g1/0/5
+switchport mode access
+switchport access vlan 40
+do wr
+
+int g1/0/6
+switchport mode access
+switchport access vlan 50
+do wr
+
+int g1/0/7
+switchport mode access
+switchport access vlan 60
+do wr
+
+int g1/0/8
+switchport mode access
+switchport access vlan 70
+do wr
+
+int g1/0/9
+switchport mode access
+switchport access vlan 80
+do wr
+
+B. Branch Campus
+en
+config t
+int g1/0/2
+switchport mode access
+switchport access vlan 90
+do wr
+
+int g1/0/3
+switchport mode access
+switchport access vlan 100
+do wr
+
+
+--------- CONFIGURATION: CREATION OF TRUNK MODE IN MULTISWITCH  ----------
+STEP 8: Do this in various multilayer switch
+##access port (router connecting the vlans in multilayer switch) cannot have more vlan. thus, we will apply tranq port, where all vlans will connect to the router (e.g to branch campus router)
+##switchport trunk mode allow a single physical link to carry traffic for multiple Virtual Local Area Networks (VLANs)
+A. Branch Campus
+en
+config t
+int g1/0/1
+switchport mode trunk
+exit
+do wr
+
+B. Main Campus
+en
+config t
+int g1/0/1
+switchport mode trunk
+exit
+do wr
+
+
+--------- CONFIGURATION: IP ADD OF THE SERIALS AND GIG TO SERVER  ----------???
+STEP 9:
+A. Main Campus Router
+en
+config
+int se0/0/0
+ip add 10.10.10.1 255.255.255.252
+no sh
+
+int se0/1/0
+ip add 10.10.10.5 255.255.255.252
+no sh
+copy run start
+
+B. Branch Router
+en
+config t
+int se0/3/0
+ip add 10.10.10.2 255.255.255.252
+no sh
+copy run start
+
+C. Cloud
+en
+config t
+int se0/1/0
+ip add 10.10.10.6 255.255.255.252
+no sh
+
+en
+config t
+int g0/0
+ip add 20.0.0.1 255.255.255.252
+no sh
+copy run start
+
+
+--------- CONFIGURATION: INTERVLAN ROUTING  ----------
+STEP 10:
+A. Branch Campus
+en
+config t
+int g0/0.90
+encapsulation dot1Q 90
+ip add 192.168.9.1 255.255.255.0
+
+int g0/0.100
+encapsulation dot1Q 100
+ip add 192.168.10.1 255.255.255.0 ##ip of this int will act as the default gateway
+do wr
+copy run start
+
+B. Main Campus
+en
+config t
+int g0/0.10
+encapsulation dot1Q 10
+ip add 192.168.1.1 255.255.255.0
+
+int g0/0.20
+encapsulation dot1Q 20
+ip add 192.168.2.1 255.255.255.0
+
+int g0/0.30
+encapsulation dot1Q 30
+ip add 192.168.3.1 255.255.255.0
+
+int g0/0.40
+encapsulation dot1Q 40
+ip add 192.168.4.1 255.255.255.0
+
+int g0/0.50
+encapsulation dot1Q 50
+ip add 192.168.5.1 255.255.255.0
+
+int g0/0.60
+encapsulation dot1Q 60
+ip add 192.168.6.1 255.255.255.0
+
+int g0/0.70
+encapsulation dot1Q 70
+ip add 192.168.7.1 255.255.255.0
+
+int g0/0.80
+encapsulation dot1Q 80
+ip add 192.168.8.1 255.255.255.0
+do wr
+
+
+--------- CONFIGURATION: DHCP SERVER  ----------//
+STEP 11:
+A. Branch Campus
+en
+config t
+service dhcp
+ip dhcp pool staff-pool
+net 192.168.9.0 255.255.255.0
+default-router 192.168.9.1
+dns-server 192.168.9.1
+exit
+do wr
+
+ip dhcp pool stndlb-pool
+net 192.168.10.0 255.255.255.0
+default-router 192.168.10.1
+dns-server 192.168.10.1
+exit
+do wr
+
+##check sa end devices if gumagana
+
+B. Main Campus
+en
+config t
+service dhcp
+ip dhcp pool admin-pool
+net 192.168.1.0 255.255.255.0
+default-router 192.168.1.1
+dns-server 192.168.1.1
+exit
+do wr
+
+ip dhcp pool hr-pool
+net 192.168.2.0 255.255.255.0
+default-router 192.168.2.1
+dns-server 192.168.2.1
+exit
+do wr
+
+ip dhcp pool finance-pool
+net 192.168.3.0 255.255.255.0
+default-router 192.168.3.1
+dns-server 192.168.3.1
+exit
+do wr
+
+ip dhcp pool business-pool
+net 192.168.4.0 255.255.255.0
+default-router 192.168.4.1
+dns-server 192.168.4.1
+exit
+do wr
+
+ip dhcp pool engrng-pool
+net 192.168.5.0 255.255.255.0
+default-router 192.168.5.1
+dns-server 192.168.5.1
+exit
+do wr
+
+ip dhcp pool aad-pool
+net 192.168.6.0 255.255.255.0
+default-router 192.168.6.1
+dns-server 192.168.6.1
+exit
+do wr
+
+ip dhcp pool stndlb-pool
+net 192.168.7.0 255.255.255.0
+default-router 192.168.7.1
+dns-server 192.168.7.1
+exit
+do wr
+
+ip dhcp pool it-pool
+net 192.168.8.0 255.255.255.0
+default-router 192.168.8.1
+dns-server 192.168.8.1
+exit
+do wr
+
+##click the dhcp in the ip config & ping afterwards within the lan
+
+--------- CONFIGURATION: ROUTING PROTOCOL  ----------
+STEP 12:
+A. Branch Campus Router
+en
+config t
+router rip
+version 2
+network 192.168.9.0
+network 192.168.10.0
+network 10.10.10.0
+exit
+do wr
+
+B. Main Campus Router
+en
+config t
+router rip
+version 2
+network 10.10.10.4
+network 10.10.10.0
+network 192.168.1.0
+network 192.168.2.0
+network 192.168.3.0
+network 192.168.4.0
+network 192.168.5.0
+network 192.168.6.0
+network 192.168.7.0
+network 192.168.8.0
+exit
+do wr
+
+C. Cloud Router
+en
+config t
+router rip
+version 2
+network 10.10.10.4
+network 20.0.0.0
+exit
+do wr
+
+
+--------- CONFIGURATION: SECURITY OF THE INTERMEDIARY DEVICES  ----------
+STEP 12: Apply this to all intermediary devices. Edit the hostname only.
+ena
+conf t
+host mc_ml_switch
+line con 0
+pass delima
+login
+line vty 0 15
+pass sheenamae
+login
+exit
+ena sec sheen
+banner motd # Authorized Personnel Only #
+ser pass
+do wr
+
+
+
