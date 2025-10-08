@@ -1,0 +1,25 @@
+[1] SIMPLE OFFICE NETWORK 
+
+
+1. INT Range
+R1(config)#int range g0/0-1
+R1(config-if-range)#no sh
+##enter lang
+R1(config-if-range)#do wr
+Building configuration...
+[OK]
+
+2. Configure the ports
+R1(config)#int g0/0
+R1(config-if)#ip add 192.168.40.1 255.255.255.128
+R1(config-if)#no sh
+R1(config-if)#int g0/1
+R1(config-if)#ip add 192.168.40.129 255.255.255.128
+R1(config-if)#no sh
+R1(config-if)#do wr
+Building configuration...
+[OK]
+R1(config)#do sh start
+##you will see info you have configured
+
+3. Then configure the endpoints by manually putting the ip add, subnet, gateway. Ping to test its connectivity
