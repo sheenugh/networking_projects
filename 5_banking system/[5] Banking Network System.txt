@@ -1,0 +1,1246 @@
+[5] Banking Network System
+
+
+KULANG:
+1. end devices name (TINAMAD)
+
+
+--------- SET-UP ----------
+STEP 1:  Do the network diagram in any software available, preferably in ms visio.
+
+STEP 2: Set-up by cabling, labelling the components, and listing your own the ip add, vlan of per dept and network between routers in annotation.
+
+
+--------- ROUTER CONFIGURATION: TURNING ON THE INTS OF THE ROUTERS ----------
+STEP 3: Turn on the interfaces of the routers both serial and gig or either of the two.
+## using CLI, you can use thes commands
+en
+config t
+int g0/0
+no sh
+do wr
+
+int se0/0/0
+no sh
+do wr
+
+## do this to all routers
+## OR manually select each router > go to config tab > click the gig and serial numbers interface used (or all available for safety na din) > click on
+
+
+--------- L3SW CONFIGURATION: ADDING POWER TO L3SW ----------
+STEP 4: Add power supply to all L3SW
+Task 1: Go to physical tab and drag and drop the AC Power Supply. Wait for it to turn green the connections.
+## to activate and have connection to L3SW interfaces connected
+
+
+--------- ROUTER CONFIGURATION: ADDING IP ADD TO THE ROUTERS' INT + CLOCK RATE ----------
+STEP 5: Add ip address to the routers interfaces, and config for clock rate
+## to enable traffic to flow through those interfaces all the cables
+## do this in other floor routers
+A. 1st Floor Router Interfaces
+(redundant link)
+en
+config t
+int g0/0
+ip add 10.10.10.29 255.255.255.252
+exit
+
+(straight-through links)
+int g0/1
+ip add 10.10.10.1 255.255.255.252
+exit
+
+int g0/2
+ip add 10.10.10.5 255.255.255.252
+exit
+
+(serial links)
+task 1: set the serial clock rate
+int range s0/0/0
+ip add 10.10.10.33 255.255.255.252
+clock rate 64000
+exit
+
+int range s0/0/1
+ip add 10.10.10.17 255.255.255.252
+exit
+do wr
+
+B. 2nd Floor Router Interfaces
+(redundant link)
+en
+config t
+int g0/0
+ip add 10.10.10.21 255.255.255.252
+exit
+
+(straight-through links)
+int g0/1
+ip add 10.10.10.13 255.255.255.252
+exit
+
+int g0/2
+ip add 10.10.10.9 255.255.255.252
+exit
+
+(serial links)
+task 1: set the serial clock rate
+int range s0/0/0
+ip add 10.10.10.18 255.255.255.252
+clock rate 64000
+exit
+
+int range s0/0/1
+ip add 10.10.10.25 255.255.255.252
+exit
+do wr
+
+D. 4th Floor Router Interfaces
+(redundant link)
+en
+config t
+int g0/0
+ip add 10.10.10.30 255.255.255.252
+exit
+
+(straight-through links)
+int g0/1
+ip add 10.10.10.53 255.255.255.252
+exit
+
+int g0/2
+ip add 10.10.10.45 255.255.255.252
+exit
+
+(serial links)
+task 1: set the serial clock rate
+int range s0/0/0
+ip add 10.10.10.37 255.255.255.252
+clock rate 64000
+exit
+
+int range s0/0/1
+ip add 10.10.10.34 255.255.255.252
+exit
+do wr
+
+C. 3rd Floor Router Interfaces
+(redundant link)
+en
+config t
+int g0/0
+ip add 10.10.10.22 255.255.255.252
+exit
+
+(straight-through links)
+int g0/1
+ip add 10.10.10.41 255.255.255.252
+exit
+
+int g0/2
+ip add 10.10.10.49 255.255.255.252
+exit
+
+(serial links)
+task 1: set the serial clock rate
+int range s0/0/0
+ip add 10.10.10.26 255.255.255.252
+clock rate 64000
+exit
+
+int range s0/0/1
+ip add 10.10.10.38 255.255.255.252
+exit
+do wr
+
+
+---------ROUTER CONFIGURATION: OSPF  ----------
+STEP 6: Config for OSPF. Do this in each router.
+
+## 1st floor router has 5 networks (ip add of the int of the router) that needs to advertise
+A. 1st Floor Router
+en
+config t
+router ospf 10
+network 10.10.10.0 0.0.0.3 area 0
+network 10.10.10.4 0.0.0.3 area 0
+network 10.10.10.16 0.0.0.3 area 0
+network 10.10.10.28 0.0.0.3 area 0
+network 10.10.10.32 0.0.0.3 area 0
+do wr
+
+B. 2nd Floor Router
+en
+config t
+router ospf 10
+network 10.10.10.12 0.0.0.3 area 0
+network 10.10.10.8 0.0.0.3 area 0
+network 10.10.10.16 0.0.0.3 area 0
+network 10.10.10.20 0.0.0.3 area 0
+network 10.10.10.24 0.0.0.3 area 0
+do wr
+
+C. 3rd Floor Router
+en
+config t
+router ospf 10
+network 10.10.10.32 0.0.0.3 area 0
+network 10.10.10.20 0.0.0.3 area 0
+network 10.10.10.36 0.0.0.3 area 0
+network 10.10.10.48 0.0.0.3 area 0
+network 10.10.10.40 0.0.0.3 area 0
+do wr
+
+D. 4th Floor Router
+en
+config t
+router ospf 10
+network 10.10.10.24 0.0.0.3 area 0
+network 10.10.10.28 0.0.0.3 area 0
+network 10.10.10.36 0.0.0.3 area 0
+network 10.10.10.44 0.0.0.3 area 0
+network 10.10.10.52 0.0.0.3 area 0
+do wr
+
+
+---------L3SW CONFIGURATION: TRUNK MODE  ----------
+STEP 7: Activate the trunk mode of the L3SW. Do this to all L3SW
+A. 1st Floor
+en
+config t
+int g1/0/2
+switchport mode trunk
+
+int range g1/0/4-8
+switchport mode trunk
+exit
+do wr
+
+B. 2nd Floor
+en
+config t
+int g1/0/2
+switchport mode trunk
+
+int range g1/0/4-8
+switchport mode trunk
+exit
+do wr
+
+C. 3rd Floor
+en
+config t
+int g1/0/2
+switchport mode trunk
+
+int range g1/0/4-8
+switchport mode trunk
+exit
+do wr
+
+D. 4th Floor
+en
+config t
+int g1/0/2
+switchport mode trunk
+
+int range g1/0/4-8
+switchport mode trunk
+exit
+do wr
+
+
+--------- L3SW CONFIGURATION: ADDING "NO SWITCHPORT" AND IP TO THE INTS CONNECTED TO THE ROUTER  ----------
+Task 1: No Switchport
+A. 1st Floor
+en
+config t
+int g1/0/1
+no switchport
+
+int g1/0/3
+no switchport
+exit
+
+Task 2: Assigning IP
+int g1/0/1
+ip add 10.10.10.2 255.255.255.252
+
+int g1/0/3
+ip add 10.10.10.10 255.255.255.252
+exit
+do wr
+
+B. 2nd Floor
+en
+config t
+int g1/0/1
+no switchport
+
+int g1/0/3
+no switchport
+exit
+
+Task 2: Assigning IP
+int g1/0/1
+ip add 10.10.10.14 255.255.255.252
+
+int g1/0/3
+ip add 10.10.10.6 255.255.255.252
+exit
+do wr
+
+C. 3rd Floor
+en
+config t
+int g1/0/1
+no switchport
+
+int g1/0/3
+no switchport
+exit
+
+Task 2: Assigning IP
+int g1/0/1
+ip add 10.10.10.42 255.255.255.252
+
+int g1/0/3
+ip add 10.10.10.46 255.255.255.252
+exit
+do wr
+
+D. 4th Floor
+en
+config t
+int g1/0/1
+no switchport
+
+int g1/0/3
+no switchport
+exit
+
+Task 2: Assigning IP
+int g1/0/1
+ip add 10.10.10.48 255.255.255.252
+
+int g1/0/3
+ip add 10.10.10.50 255.255.255.252
+exit
+do wr
+
+///////////////////////////////////////////////////////////////////
+--------- L3SW CONFIGURATION: OSPF  ----------
+A. 1st Floor L3SW
+en
+config t
+ip routing
+router ospf 10
+network 10.10.10.0 0.0.0.3 area 0
+network 10.10.10.8 0.0.0.3 area 0
+
+network 192.168.10.0 0.0.0.63 area 0
+network 192.168.10.64 0.0.0.63 area 0
+network 192.168.10.128 0.0.0.63 area 0
+network 192.168.10.192 0.0.0.63 area 0
+network 192.168.11.0 0.0.0.63 area 0
+network 192.168.11.64 0.0.0.63 area 0
+do wr
+
+A. 2nd Floor L3SW
+en
+config t
+ip routing
+router ospf 10
+network 10.10.10.12 0.0.0.3 area 0
+network 10.10.10.4 0.0.0.3 area 0
+
+network 192.168.10.0 0.0.0.63 area 0
+network 192.168.10.64 0.0.0.63 area 0
+network 192.168.10.128 0.0.0.63 area 0
+network 192.168.10.192 0.0.0.63 area 0
+network 192.168.11.0 0.0.0.63 area 0
+network 192.168.11.64 0.0.0.63 area 0
+do wr
+
+C. 3rd Floor L3SW
+en
+config t
+ip routing
+router ospf 10
+network 10.10.10.40 0.0.0.3 area 0
+network 10.10.10.44 0.0.0.3 area 0
+
+network 192.168.11.128 0.0.0.63 area 0
+network 192.168.11.192 0.0.0.63 area 0
+network 192.168.12.0 0.0.0.63 area 0
+network 192.168.12.64 0.0.0.63 area 0
+network 192.168.12.128 0.0.0.63 area 0
+network 192.168.12.192 0.0.0.63 area 0
+do wr
+
+D. 4th Floor L3SW
+en
+config t
+ip routing
+router ospf 10
+network 10.10.10.48 0.0.0.3 area 0
+network 10.10.10.52 0.0.0.3 area 0
+
+network 192.168.11.128 0.0.0.63 area 0
+network 192.168.11.192 0.0.0.63 area 0
+network 192.168.12.0 0.0.0.63 area 0
+network 192.168.12.64 0.0.0.63 area 0
+network 192.168.12.128 0.0.0.63 area 0
+network 192.168.12.192 0.0.0.63 area 0
+do wr
+
+--------- L2SW CONFIGURATION: TRUNK MODE, VLAN, PORT SECURITY  ----------
+Task 1: Trunk Mode and vlan's name
+A. Management Dept
+en
+config t
+int range fa0/1-2
+switchport mode trunk
+exit
+
+vlan 10
+name mgmnt
+exit
+
+Task 2: VLAN and Port Security
+int range fa0/3-24
+switchport mode access
+switchport access vlan 10
+
+switchport port-security maximum 2
+switchport port-security mac-address sticky
+switchport port-security violation shutdown
+do wr
+
+B. Research Dept.
+en
+config t
+int range fa0/1-2
+switchport mode trunk
+exit
+
+vlan 20
+name research
+exit
+
+int range fa0/3-24
+switchport mode access
+switchport access vlan 20
+
+switchport port-security maximum 2
+switchport port-security mac-address sticky
+switchport port-security violation shutdown
+do wr
+
+C. HR Dept
+en
+config t
+int range fa0/1-2
+switchport mode trunk
+exit
+
+vlan 30
+name hr
+exit
+
+int range fa0/3-24
+switchport mode access
+switchport access vlan 30
+
+switchport port-security maximum 2
+switchport port-security mac-address sticky
+switchport port-security violation shutdown
+do wr
+
+E. Marketing Dept
+en
+config t
+int range fa0/1-2
+switchport mode trunk
+exit
+
+vlan 40
+name marketing
+exit
+
+int range fa0/3-24
+switchport mode access
+switchport access vlan 40
+
+switchport port-security maximum 2
+switchport port-security mac-address sticky
+switchport port-security violation shutdown
+do wr
+
+F. Accounting
+en
+config t
+int range fa0/1-2
+switchport mode trunk
+exit
+
+vlan 50
+name accounting
+exit
+
+int range fa0/3-24
+switchport mode access
+switchport access vlan 50
+
+switchport port-security maximum 2
+switchport port-security mac-address sticky
+switchport port-security violation shutdown
+do wr
+
+G. Finance
+en
+config t
+int range fa0/1-2
+switchport mode trunk
+exit
+
+vlan 60
+name finance
+exit
+
+int range fa0/3-24
+switchport mode access
+switchport access vlan 60
+
+switchport port-security maximum 2
+switchport port-security mac-address sticky
+switchport port-security violation shutdown
+do wr
+
+H. L&S
+en
+config t
+int range fa0/1-2
+switchport mode trunk
+exit
+
+vlan 70
+name l&s
+exit
+
+int range fa0/3-24
+switchport mode access
+switchport access vlan 70
+
+switchport port-security maximum 2
+switchport port-security mac-address sticky
+switchport port-security violation shutdown
+do wr
+
+I. Customer Care
+en
+config t
+int range fa0/1-2
+switchport mode trunk
+exit
+
+vlan 80
+name customer-care
+exit
+
+int range fa0/3-24
+switchport mode access
+switchport access vlan 80
+
+switchport port-security maximum 2
+switchport port-security mac-address sticky
+switchport port-security violation shutdown
+do wr
+
+J. Guest Area
+en
+config t
+int range fa0/1-2
+switchport mode trunk
+exit
+
+vlan 90
+name guest-area
+exit
+
+int range fa0/3-24
+switchport mode access
+switchport access vlan 90
+
+switchport port-security maximum 2
+switchport port-security mac-address sticky
+switchport port-security violation shutdown
+do wr
+
+K. Admin
+en
+config t
+int range fa0/1-2
+switchport mode trunk
+exit
+
+vlan 100
+name admin
+exit
+
+int range fa0/3-24
+switchport mode access
+switchport access vlan 100
+
+switchport port-security maximum 2
+switchport port-security mac-address sticky
+switchport port-security violation shutdown
+do wr
+
+L. ICT
+en
+config t
+int range fa0/1-2
+switchport mode trunk
+exit
+
+vlan 110
+name ict
+exit
+
+int range fa0/3-24
+switchport mode access
+switchport access vlan 110
+
+switchport port-security maximum 2
+switchport port-security mac-address sticky
+switchport port-security violation shutdown
+do wr
+
+M. Server Room
+en
+config t
+int range fa0/1-2
+switchport mode trunk
+exit
+
+vlan 120
+name server-room
+exit
+
+int range fa0/3-24
+switchport mode access
+switchport access vlan 120
+
+switchport port-security maximum 2
+switchport port-security mac-address sticky
+switchport port-security violation shutdown
+do wr
+
+
+--------- SERVERS CONFIGURATION: STATIC IP ADD OF THE SERVERS ----------
+A. DHCP SERVER
+IP ADD: 192.168.12.196
+SM: 255.255.255.192
+DG: 192.168.12.193
+
+B. HTTP SERVER
+IP ADD: 192.168.12.197
+SM: 255.255.255.192
+DG: 192.168.12.193
+
+C. EMAIL SERVER
+IP ADD: 192.168.12.198
+SM: 255.255.255.192
+DG: 192.168.12.193
+
+
+--------- DCHP SERVER CONFIGURATION: SETTING UP FOR DHCP---IP ADDRESS FOR THE END DEVICES ----------
+Click DHCP Server
+Go to services tab
+Click DHCP
+Then add or create a pool. This is a pool for every department.
+Provide the following details:
+ 	a. pool name
+ 	b. default gateway of the dep
+ 	c. starting ip add
+ 	d. max num of users
+ 	e. dns server
+ 
+ 	ex: mgmt. dep
+ 	a. pool name: mgmt-pool
+ 	b. default gateway of the dep: 192.168.10.1
+ 	c. starting ip add: 192.168.10.6
+ 	d. max num of users: u na or baka stated sa given
+e. dns server: 192.168.12.196 ##ip ng dhcp server
+
+ 	## do this to other department.
+ 	## exclude the first 4 ip after the dg address for the start of the ip add. see sample above
+
+
+--------- L3SW CONFIGURATION: INTERVLAN ROUTING + IP DHCP HELPER ADDRESS  ----------
+## to check...
+do sh vlan database
+
+A. 1st and 2nd floor L3SW
+en
+config t
+vlan 10
+vlan 20
+vlan 30
+vlan 40
+vlan 50
+vlan 60
+
+int vlan 10
+no sh
+ip add 192.168.10.1 255.255.255.192
+ip helper-address 192.168.12.196
+exit
+
+int vlan 20
+no sh
+ip add 192.168.10.65 255.255.255.192
+ip helper-address 192.168.12.196
+exit
+
+int vlan 30
+no sh
+ip add 192.168.10.129 255.255.255.192
+ip helper-address 192.168.12.196
+exit
+
+int vlan 40
+no sh
+ip add 192.168.10.193 255.255.255.192
+ip helper-address 192.168.12.196
+exit
+
+int vlan 50
+no sh
+ip add 192.168.11.1 255.255.255.192
+ip helper-address 192.168.12.196
+exit
+
+int vlan 60
+no sh
+ip add 192.168.11.65 255.255.255.192
+ip helper-address 192.168.12.196
+exit
+do wr
+
+## copy and paste this to 2nd floor L3SW
+
+A. 3rd and 4th floor L3SW
+en
+config t
+vlan 70
+vlan 80
+vlan 90
+vlan 100
+vlan 110
+vlan 120
+
+int vlan 70
+no sh
+ip add 192.168.11.129 255.255.255.192
+ip helper-address 192.168.12.196
+exit
+
+int vlan 80
+no sh
+ip add 192.168.11.193 255.255.255.192
+ip helper-address 192.168.12.196
+exit
+
+int vlan 90
+no sh
+ip add 192.168.12.1 255.255.255.192
+ip helper-address 192.168.12.196
+exit
+
+int vlan 100
+no sh
+ip add 192.168.12.65 255.255.255.192
+ip helper-address 192.168.12.196
+exit
+
+int vlan 110
+no sh
+ip add 192.168.12.129 255.255.255.192
+ip helper-address 192.168.12.196
+exit
+
+int vlan 120
+no sh
+ip add 192.168.12.193 255.255.255.192
+exit
+do wr
+
+
+--------- ENDPOINTS CONFIGURATION: ASSIGNING IP ADD BY CLICKING THE DHCP ONLY IN THE IP CONFIG  ----------
+
+
+--------- DNS CONFIGURATION: ADDING A DNS SERVICE  ----------
+Task 1: By adding a DNS service, the IP of the DHCP with its domain name is inputted in the cell.
+www.gtech.com
+192.168.12.196
+
+
+---------  DOMAIN TEST: IS THE ADDED DOMAIN NAME IS WORKING?  ----------
+Task 1: Test if the added domain name in the DHCP server is working in end devices
+Go desktop tab of the end device
+Go to web browser
+Input URL
+
+
+---------  AP CONFIG AND TEST ----------
+Go to port 1
+Set up for SSID and WPA2-PSK
+Add wireless end-devices, e.g. laptop.
+Connect by setting up. Then, see if it has a signal connected to the AP. By this, it will automatically have an IP
+
+
+
+---------  TEST FOR CONNECTIVITY  ----------
+Task 1: Perform ping in every depts
+
+
+
+---------  BASIC SECURITY OF THE NODES (END, L2SWITCHES, L3SWITCHES)  ----------
+##label name and host name are the same kasi trip ko lang
+##password must be strong. sa ngayon ganyan lang muna for practice and madali i-copy paste
+A. L2SWITCHES
+en
+config t
+hostname 1F-Management-SW
+line con 0
+pass sheena123
+login
+line vty 1 15
+pass sheenamae123
+login
+exit
+no ip domain-lookup
+ena sec delima1234
+banner motd # Authorized Access Only! #
+ser pass
+do wr
+--
+en
+config t
+hostname 1F-Research-SW
+line con 0
+pass sheena123
+login
+line vty 1 15
+pass sheenamae123
+login
+exit
+no ip domain-lookup
+ena sec delima1234
+banner motd # Authorized Access Only! #
+ser pass
+do wr
+--
+en
+config t
+hostname 1F-HR-SW
+line con 0
+pass sheena123
+login
+line vty 1 15
+pass sheenamae123
+login
+exit
+no ip domain-lookup
+ena sec delima1234
+banner motd # Authorized Access Only! #
+ser pass
+do wr
+
+
+=====
+en
+config t
+hostname 2F-Marketing-SW
+line con 0
+pass sheena123
+login
+line vty 1 15
+pass sheenamae123
+login
+exit
+no ip domain-lookup
+ena sec delima1234
+banner motd # Authorized Access Only! #
+ser pass
+do wr
+---
+en
+config t
+hostname 2F-Accounting-SW
+line con 0
+pass sheena123
+login
+line vty 1 15
+pass sheenamae123
+login
+exit
+no ip domain-lookup
+ena sec delima1234
+banner motd # Authorized Access Only! #
+ser pass
+do wr
+--
+en
+config t
+hostname 2F-Finance-SW
+line con 0
+pass sheena123
+login
+line vty 1 15
+pass sheenamae123
+login
+exit
+no ip domain-lookup
+ena sec delima1234
+banner motd # Authorized Access Only! #
+ser pass
+do wr
+
+=====
+en
+config t
+hostname 3F-L&S-SW
+line con 0
+pass sheena123
+login
+line vty 1 15
+pass sheenamae123
+login
+exit
+no ip domain-lookup
+ena sec delima1234
+banner motd # Authorized Access Only! #
+ser pass
+do wr
+---
+en
+config t
+hostname 3F-Cusomer Care-SW
+line con 0
+pass sheena123
+login
+line vty 1 15
+pass sheenamae123
+login
+exit
+no ip domain-lookup
+ena sec delima1234
+banner motd # Authorized Access Only! #
+ser pass
+do wr
+--
+en
+config t
+hostname 3F-Guest Area-SW
+line con 0
+pass sheena123
+login
+line vty 1 15
+pass sheenamae123
+login
+exit
+no ip domain-lookup
+ena sec delima1234
+banner motd # Authorized Access Only! #
+ser pass
+do wr
+
+=====
+en
+config t
+hostname 4F-Admin-SW
+line con 0
+pass sheena123
+login
+line vty 1 15
+pass sheenamae123
+login
+exit
+no ip domain-lookup
+ena sec delima1234
+banner motd # Authorized Access Only! #
+ser pass
+do wr
+---
+en
+config t
+hostname 4F-ICT-SW
+line con 0
+pass sheena123
+login
+line vty 1 15
+pass sheenamae123
+login
+exit
+no ip domain-lookup
+ena sec delima1234
+banner motd # Authorized Access Only! #
+ser pass
+do wr
+--
+en
+config t
+hostname 4F-Server Room-SW
+line con 0
+pass sheena123
+login
+line vty 1 15
+pass sheenamae123
+login
+exit
+no ip domain-lookup
+ena sec delima1234
+banner motd # Authorized Access Only! #
+ser pass
+do wr
+
+B. L3SWITCHES
+A. 1st floor LS3SW
+Task 1: Basic Security
+en
+config t
+hostname  1F-L3SW
+line con 0
+pass sheena123
+login
+line vty 0 15
+pass sheenamae123
+login
+exit
+no ip domain-lookup
+ena sec delima1234
+banner motd # Authorized Access Only! #
+ser pass
+do wr
+
+Task 2: SSH
+ip domain-name cisco.net
+username cisco password cisco
+crypto key generate rsa
+1024
+line vty 0 15
+login local
+transport input ssh
+exit
+do wr
+
+B. 2nd floor LS3SW
+Task 1: Basic Security
+en
+config t
+hostname  2F-L3SW
+line con 0
+pass sheena123
+login
+line vty 0 15
+pass sheenamae123
+login
+exit
+no ip domain-lookup
+ena sec delima1234
+banner motd # Authorized Access Only! #
+ser pass
+do wr
+
+Task 2: SSH
+ip domain-name cisco.net
+username cisco password cisco
+crypto key generate rsa
+1024
+line vty 0 15
+login local
+transport input ssh
+exit
+do wr
+
+C. 3rd floor LS3SW
+Task 1: Basic Security
+en
+config t
+hostname  3F-L3SW
+line con 0
+pass sheena123
+login
+line vty 0 15
+pass sheenamae123
+login
+exit
+no ip domain-lookup
+ena sec delima1234
+banner motd # Authorized Access Only! #
+ser pass
+do wr
+
+Task 2: SSH
+ip domain-name cisco.net
+username cisco password cisco
+crypto key generate rsa
+1024
+line vty 0 15
+login local
+transport input ssh
+exit
+do wr
+
+D. 4th floor LS3SW
+Task 1: Basic Security
+en
+config t
+hostname  4F-L3SW
+line con 0
+pass sheena123
+login
+line vty 0 15
+pass sheenamae123
+login
+exit
+no ip domain-lookup
+ena sec delima1234
+banner motd # Authorized Access Only! #
+ser pass
+do wr
+
+Task 2: SSH
+ip domain-name cisco.net
+username cisco password cisco
+crypto key generate rsa
+1024
+line vty 0 15
+login local
+transport input ssh
+exit
+do wr
+
+---------  ROUTER CONFIGURATION: BASIC SECURITY AND APPLYING SSH ----------
+##password must be strong. sa ngayon ganyan lang muna for practice and madali i-copy paste
+A. 1st floor
+Task 1: Basic Security
+en
+config t
+hostname  1F-R
+line con 0
+pass sheena123
+login
+line vty 0 15
+pass sheenamae123
+login
+exit
+no ip domain-lookup
+ena sec delima1234
+banner motd # Authorized Access Only! #
+ser pass
+do wr
+
+Task 2: SSH
+ip domain-name cisco.net
+username cisco password cisco
+crypto key generate rsa
+1024
+line vty 0 15
+login local
+transport input ssh
+exit
+do wr
+
+B. 2nd floor Router
+Task 1: Basic Security
+en
+config t
+hostname  2F-R
+line con 0
+pass sheena123
+login
+line vty 0 15
+pass sheenamae123
+login
+exit
+no ip domain-lookup
+ena sec delima1234
+banner motd # Authorized Access Only! #
+ser pass
+do wr
+
+Task 2: SSH
+ip domain-name cisco.net
+username cisco password cisco
+crypto key generate rsa
+1024
+line vty 0 15
+login local
+transport input ssh
+exit
+do wr
+
+C. 3rd floor Router
+Task 1: Basic Security
+en
+config t
+hostname  3F-R
+line con 0
+pass sheena123
+login
+line vty 0 15
+pass sheenamae123
+login
+exit
+no ip domain-lookup
+ena sec delima1234
+banner motd # Authorized Access Only! #
+ser pass
+do wr
+
+Task 2: SSH
+ip domain-name cisco.net
+username cisco password cisco
+crypto key generate rsa
+1024
+line vty 0 15
+login local
+transport input ssh
+exit
+do wr
+
+D. 4th floor Router
+Task 1: Basic Security
+en
+config t
+hostname  4F-R
+line con 0
+pass sheena123
+login
+line vty 0 15
+pass sheenamae123
+login
+exit
+no ip domain-lookup
+ena sec delima1234
+banner motd # Authorized Access Only! #
+ser pass
+do wr
+
+Task 2: SSH
+ip domain-name cisco.net
+username cisco password cisco
+crypto key generate rsa
+1024
+line vty 0 15
+login local
+transport input ssh
+exit
+do wr
+
+
